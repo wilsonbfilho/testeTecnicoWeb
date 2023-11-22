@@ -1,4 +1,11 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     function validar_dados($dados) {
         $dados = trim($dados);
@@ -27,16 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // Configurações do servidor SMTP do MailHog
-    $smtp_host = "localhost";
-    $smtp_port = 1025;
+    // Configurações do servidor SMTP
+    $smtp_host = "seu_smtp_host";
+    $smtp_port = 587; 
+    $smtp_usuario = "seu_usuario_smtp";
+    $smtp_senha = "sua_senha_smtp";
 
-    $nome = $_POST["nome"];
-    $telefone = $_POST["telefone"];
-    $email = $_POST["email"];
-    $mensagem = $_POST["mensagem"];
-
-    $destinatario = "localtestphpmail@gmail.com";  // Substitua pelo seu endereço de e-mail
+    $destinatario = "localtestphpmail@gmail.com";  
     $assunto = "Nova mensagem do formulário de contato Construsite - Brasil";
 
     $corpo_mensagem = "Nome: $nome\n";
@@ -44,17 +48,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $corpo_mensagem .= "E-mail: $email\n\n";
     $corpo_mensagem .= "Mensagem:\n$mensagem";
 
-    $headers = "From: $email\r\n";
-    $headers .= "Reply-To: $email\r\n";
+    $mail = new PHPMailer(true);
 
-    ini_set("SMTP", $smtp_host);
-    ini_set("smtp_port", $smtp_port);
-    ini_set("sendmail_from", $email);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = $smtp_host;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $smtp_usuario;
+        $mail->Password   = $smtp_senha;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = $smtp_port;
 
-    if (mail($destinatario, $assunto, $corpo_mensagem, $headers)) {
+        $mail->setFrom($email, $nome);
+        $mail->addAddress($destinatario);
+        $mail->Subject = $assunto;
+        $mail->Body    = $corpo_mensagem;
+
+        $mail->send();
         echo "Mensagem enviada com sucesso!";
-    } else {
-        echo "Erro ao enviar a mensagem. Por favor, tente novamente.";
+    } catch (Exception $e) {
+        echo "Erro ao enviar a mensagem. Detalhes do erro: {$mail->ErrorInfo}";
     }
 } else {
     echo "Acesso direto a este script não permitido.";
