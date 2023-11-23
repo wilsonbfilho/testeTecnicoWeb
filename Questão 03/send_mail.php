@@ -35,8 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Configurações do servidor SMTP
-    $smtp_host = "seu_smtp_host";
-    $smtp_port = 587; 
+    $smtp_host = "localhost";
+    $smtp_port = 1025; 
     $smtp_usuario = "seu_usuario_smtp";
     $smtp_senha = "sua_senha_smtp";
 
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->SMTPAuth   = true;
         $mail->Username   = $smtp_usuario;
         $mail->Password   = $smtp_senha;
-        $mail->SMTPSecure = 'tls';
+        $mail->SMTPSecure = '';
         $mail->Port       = $smtp_port;
 
         $mail->setFrom($email, $nome);
